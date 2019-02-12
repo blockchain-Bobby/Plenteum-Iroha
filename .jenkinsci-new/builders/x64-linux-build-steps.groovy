@@ -54,7 +54,7 @@ def buildSteps(int parallelism, List compilerVersions, String build_type, boolea
     cmakeBooleanOption = [ (true): 'ON', (false): 'OFF' ]
     platform = sh(script: 'uname -m', returnStdout: true).trim()
     cmakeBuildOptions = ""
-    cmakeOptions = ""
+    cmakeOptions = " -DCMAKE_CXX_COMPILER=${WORKSPACE}/.jenkinsci-new/helpers/build.sh "
     if (packagebuild){
       cmakeBuildOptions = " --target package "
     }
@@ -132,6 +132,20 @@ def buildSteps(int parallelism, List compilerVersions, String build_type, boolea
 def successPostSteps(scmVars, boolean packagePush, String dockerTag, List environment) {
   stage('Linux success PostSteps') {
     withEnv(environment) {
+
+      // handling build time results
+      if (currentBuild.currentResult == "SUCCESS" && !params.fuzzing) {
+        sh(".jenkinsci-new/helpers/exportBuildTime.py buildTimeResult.txt")
+        zip archive: true, dir: '', glob: 'buildTimeResult.csv', zipFile: 'buildTimeMeasurement.zip'
+        archiveArtifacts artifacts: 'buildTimeMeasurement.zip'
+
+        copyArtifacts(projectName: 'develop', filter: 'buildTimeMeasurement.zip', target: 'buildTimeMeasurement-develop');
+        unzip zipFile: 'buildTimeMeasurement-develop/buildTimeMeasurement.zip', dir: 'buildTimeMeasurement-develop'
+        sh ".jenkinsci-new/helpers/analyzeBuildTime.py buildTimeMeasurement-develop/buildTimeResult.csv buildTimeResult.csv"
+        zip archive: true, dir: '', glob: 'diff.csv', zipFile: 'diff.zip'
+        archiveArtifacts artifacts: 'diff.zip'
+      }
+
       if (packagePush) {
         def artifacts = load ".jenkinsci-new/artifacts.groovy"
         def utils = load ".jenkinsci-new/utils/utils.groovy"

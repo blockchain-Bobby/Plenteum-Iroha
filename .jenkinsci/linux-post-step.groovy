@@ -19,7 +19,7 @@ def linuxPostStep() {
       }
 
       // handling build time results
-      if (currentBuild.currentResult == "SUCCESS" && !fuzzingEnabled) {
+      if (currentBuild.currentResult == "SUCCESS" && !params.fuzzing) {
         sh(".jenkinsci/helpers/exportBuildTime.py buildTimeResult.txt")
         zip archive: true, dir: '', glob: 'buildTimeResult.csv', zipFile: 'buildTimeMeasurement.zip'
         archiveArtifacts artifacts: 'buildTimeMeasurement.zip'
