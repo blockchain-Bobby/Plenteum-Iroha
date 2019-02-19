@@ -54,7 +54,7 @@ def buildSteps(int parallelism, List compilerVersions, String build_type, boolea
     cmakeBooleanOption = [ (true): 'ON', (false): 'OFF' ]
     platform = sh(script: 'uname -m', returnStdout: true).trim()
     cmakeBuildOptions = ""
-    cmakeOptions = ""
+    cmakeOptions = " -DCMAKE_CXX_COMPILER=${WORKSPACE}/.jenkinsci-new/helpers/build.sh "
     if (packagebuild){
       cmakeBuildOptions = " --target package "
     }
