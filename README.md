@@ -55,6 +55,8 @@ Yes, in [Java](http://iroha.readthedocs.io/en/latest/guides/libraries/java.html)
 
 [Android point app](https://github.com/hyperledger/iroha-android/tree/master/iroha-android-sample) and [JavaScript wallet](https://github.com/soramitsu/iroha-wallet-js).
 
+## Use Case
+
 ## Need help?
 
 * Join [telegram chat](https://t.me/hyperledgeriroha) where the maintainers team is able to help you
