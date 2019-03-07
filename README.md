@@ -2,7 +2,13 @@
 
 This is a proof of concept for applications to be built using Hyperledger Iroha as permissioned ledger and Plenteum for public validation & record keeping of transactions.
 
-this code is not inteded to be used or distributed for any production purposes until ready.
+This code is not intended to be used or distributed for any production purposes until ready.
+
+Private keys are not stored in a secure manner making it easier for development and should be removed from your production code.
+
+The API for the project will be done using Python 3's Flask framework, allowing easily customizable REST end points. 
+
+Intergration with Plenteum is done via REST API calls to Plenteum App Services.
 
 # What is Hyperledger Iroha?
 
