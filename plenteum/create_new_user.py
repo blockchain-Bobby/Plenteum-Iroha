@@ -8,11 +8,8 @@ net = IrohaGrpc()
 
 admin_private_key = 'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506cab70'
 
-alice_private_keys = [
-    'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba1',
-    'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba2'
-]
-alice_public_keys = [ic.derive_public_key(x) for x in alice_private_keys]
+user_private_key =  'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba1'
+user_public_key = ic.derive_public_key(user_private_key)
 
 def send_transaction_and_print_status(transaction):
     global net
@@ -27,7 +24,7 @@ def create_users():
     global iroha
     init_cmds = [
         iroha.command('CreateAccount', account_name='alice', domain_id='casino',
-                      public_key=alice_public_keys[0])
+                      public_key=user_public_key)
     ]
     init_tx = iroha.transaction(init_cmds)
     ic.sign_transaction(init_tx, admin_private_key)
