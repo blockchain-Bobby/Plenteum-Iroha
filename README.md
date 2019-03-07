@@ -1,3 +1,9 @@
+# This is a Proof of Concept utilizing Hyperledger Iroha & Plenteum
+
+This is a proof of concept for applications to be built using Hyperledger Iroha as permissioned ledger and Plenteum for public validation & record keeping of transactions.
+
+this code is not inteded to be used or distributed for any production purposes until ready.
+
 # What is Hyperledger Iroha?
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
