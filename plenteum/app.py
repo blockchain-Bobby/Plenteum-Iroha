@@ -10,6 +10,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import NewAssetForm, RegistrationForm, LoginForm
+from iroha_ple import create_users, create_new_asset
 import requests as r
 import pandas as pd
 
@@ -84,15 +85,7 @@ def new_asset():
     form = NewAssetForm()
 
     if form.is_submitted():
-        user_tx = iroha.transaction(
-        [iroha.command('CreateAsset', asset_name='bitcoin',
-            domain_id='test', precision=2, amount='1')],
-        creator_account='bob@test'
-    )
-    iroha.batch(user_tx, atomic=True)
-    # sign transactions only after batch meta creation
-    ic.sign_transaction(alice_tx, *alice_private_keys)
-    send_batch_and_print_status(alice_tx, user_tx)
+        create_new_asset()
     
     return '<h1>New user has been created!</h1>'
     

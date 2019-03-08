@@ -3,12 +3,9 @@ from iroha import IrohaCrypto as ic
 from iroha import Iroha, IrohaGrpc
 import sys
 
-def connect_to_iroha():
-        iroha = Iroha('admin@test')
-        net = IrohaGrpc()
-
-        admin_private_key = 'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506cab70'
-
+iroha = Iroha('admin@test')
+net = IrohaGrpc()
+admin_private_key = open('.configs/admin@test.priv').read()
 
 def send_transaction_and_print_status(transaction):
     global net
@@ -21,9 +18,9 @@ def send_transaction_and_print_status(transaction):
 
 def create_users():
     global iroha
-    user_private_key =  'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba1'
+    pk = ic.private_key()
+    user_private_key = pk
     user_public_key = ic.derive_public_key(user_private_key)
-
     init_cmds = [
         iroha.command('CreateAccount', account_name='alice', domain_id='casino',
                       public_key=user_public_key)
@@ -31,3 +28,14 @@ def create_users():
     init_tx = iroha.transaction(init_cmds)
     ic.sign_transaction(init_tx, admin_private_key)
     send_transaction_and_print_status(init_tx)
+    print('Public')
+
+def create_new_asset():
+    global iroha
+    user_tx = iroha.transaction(
+        [iroha.command('CreateAsset', asset_name='bitcoin',
+            domain_id='test', precision=2, amount='1')],
+        creator_account='bob@test'
+    )
+    ic.sign_transaction(user_tx, admin_private_key)
+    send_transaction_and_print_status(user_tx)
