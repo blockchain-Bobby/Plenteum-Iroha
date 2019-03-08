@@ -3,13 +3,12 @@ from iroha import IrohaCrypto as ic
 from iroha import Iroha, IrohaGrpc
 import sys
 
-iroha = Iroha('admin@test')
-net = IrohaGrpc()
+def connect_to_iroha():
+        iroha = Iroha('admin@test')
+        net = IrohaGrpc()
 
-admin_private_key = 'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506cab70'
+        admin_private_key = 'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506cab70'
 
-user_private_key =  'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba1'
-user_public_key = ic.derive_public_key(user_private_key)
 
 def send_transaction_and_print_status(transaction):
     global net
@@ -22,6 +21,9 @@ def send_transaction_and_print_status(transaction):
 
 def create_users():
     global iroha
+    user_private_key =  'f101537e319568c765b2cc89698325604991dca57b9716b58016b253506caba1'
+    user_public_key = ic.derive_public_key(user_private_key)
+
     init_cmds = [
         iroha.command('CreateAccount', account_name='alice', domain_id='casino',
                       public_key=user_public_key)

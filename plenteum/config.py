@@ -7,7 +7,7 @@ SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'
 # The SQLAlchemy connection string.
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:admin@localhost/plenteum_dev'
-#SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
+#SQLALCHEMY_DATABASE_URI = 'postgresql://iroha:mysecretpassword@localhost:5432/myapp'
 
 # Flask-WTF flag for CSRF
 CSRF_ENABLED = True

@@ -14,5 +14,7 @@ class RegistrationForm(FlaskForm):
     register = SubmitField('Register')
 
 class NewAssetForm(FlaskForm):
-    asset_name = StringField('Username',validators=[DataRequired])
-    domain_name = StringField('Username',validators=[DataRequired])
+    asset_name = StringField('Asset Name',validators=[DataRequired])
+    domain_name = StringField('Domain',validators=[DataRequired])
+    qty = IntegerField('Qty')
+    

@@ -9,7 +9,7 @@ from sqlalchemy import Float, Column, Boolean, BigInteger ,Integer, String, Fore
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from forms import OrderForm, RegistrationForm
+from forms import NewAssetForm, RegistrationForm, LoginForm
 import requests as r
 import pandas as pd
 
@@ -21,6 +21,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 bootstrap = Bootstrap(app)
 
+#tables need to be moved to seperate file
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
@@ -44,11 +45,6 @@ def create_turtle_payment():
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=80)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=80)])
-    remember = BooleanField('remember me')
 
 @app.route('/')
 def index():
@@ -80,6 +76,25 @@ def signup():
         db.session.commit()
 
         return '<h1>New user has been created!</h1>'
+    
+    return render_template('signup.html', form=form)
+
+@app.route('/new_asset', methods=['GET', 'POST'])
+def new_asset():
+    form = NewAssetForm()
+
+    if form.is_submitted():
+        user_tx = iroha.transaction(
+        [iroha.command('CreateAsset', asset_name='bitcoin',
+            domain_id='test', precision=2, amount='1')],
+        creator_account='bob@test'
+    )
+    iroha.batch(user_tx, atomic=True)
+    # sign transactions only after batch meta creation
+    ic.sign_transaction(alice_tx, *alice_private_keys)
+    send_batch_and_print_status(alice_tx, user_tx)
+    
+    return '<h1>New user has been created!</h1>'
     
     return render_template('signup.html', form=form)
 
