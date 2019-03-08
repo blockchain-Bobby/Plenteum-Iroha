@@ -13,9 +13,6 @@ from forms import OrderForm, RegistrationForm
 import requests as r
 import pandas as pd
 
-luno_key = 'b5akksp8k9ksd'
-luno_secret = 'iLFqWwrOmECkCZsCCAqAFf26BRET-5zmijYwnFqIONM'
-
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)

@@ -55,8 +55,6 @@ Yes, in [Java](http://iroha.readthedocs.io/en/latest/guides/libraries/java.html)
 
 [Android point app](https://github.com/hyperledger/iroha-android/tree/master/iroha-android-sample) and [JavaScript wallet](https://github.com/soramitsu/iroha-wallet-js).
 
-## Use Case
-
 ## Need help?
 
 * Join [telegram chat](https://t.me/hyperledgeriroha) where the maintainers team is able to help you
@@ -65,7 +63,7 @@ Yes, in [Java](http://iroha.readthedocs.io/en/latest/guides/libraries/java.html)
 * Join [Hyperledger RocketChat](https://chat.hyperledger.org) #iroha channel to discuss your concerns and proposals
 * Use mailing list to spread your word within Iroha development community [hyperledger-iroha@lists.hyperledger.org](mailto:hyperledger-iroha@lists.hyperledger.org)
 
-## License
+## Iroha License
 
 Iroha codebase is licensed under the Apache License,
 Version 2.0 (the "License"); you may not use this file except
@@ -81,3 +79,23 @@ limitations under the License.
 Iroha documentation files are made available under the Creative Commons
 Attribution 4.0 International License (CC-BY-4.0), available at
 http://creativecommons.org/licenses/by/4.0/
+
+## How To Get Started
+# These are only instructions for running a local dev enviroment
+
+Ensure that you have docker installed.
+
+In scripts folder excecute the "run-iroha-dev.sh" script
+this will download all of the required docker images and start up a docker network
+with all of the configurations applied.
+
+Iroha requires PostGres in order to run which is also automatically downloaded in the "run-iroha-dev.sh" script, which triggers the "run-pg-dev.sh" script.
+
+For dev purposes, all of the required configurations have been edited from the example ones provided as the configuration differs slightly from what is provided on the quick start guide
+
+Next you need to start the Iroha Daemon, Irohad which is located in build/bin folder.
+first change into thelaunch the daemon with the following command
+
+irohad --config config.docker --genesis_block genesis.block --keypair_name node0
+
+You may interact with the Iroha
