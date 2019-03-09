@@ -73,9 +73,11 @@ def signup():
     if form.is_submitted():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
         new_user = User(username=form.username.data, pub_key=form.pub_key.data, password_hash=hashed_password)
+        user_name = form.username.data
+        domain = form.domain.data
+        create_users(user_name=user_name,domain=domain)
         db.session.add(new_user)
         db.session.commit()
-
         return '<h1>New user has been created!</h1>'
     
     return render_template('signup.html', form=form)
@@ -85,10 +87,9 @@ def new_asset():
     form = NewAssetForm()
 
     if form.is_submitted():
-        create_new_asset()
-    
-    return '<h1>New user has been created!</h1>'
-    
+        create_new_asset(username='admin@test',asset=form.asset_name.data,domain=form.domain_name.data,precision=form.precision.data,qty=form.qty.data)
+        return '<h1>New Asset has been created!</h1>'
+
     return render_template('signup.html', form=form)
 
 @app.route('/dashboard')

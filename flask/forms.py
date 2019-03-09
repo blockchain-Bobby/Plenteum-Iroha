@@ -11,10 +11,12 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username',validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
     pub_key = StringField('PLe Public Address',validators=[DataRequired])
+    domain = StringField('Domain Name')
     register = SubmitField('Register')
 
 class NewAssetForm(FlaskForm):
     asset_name = StringField('Asset Name',validators=[DataRequired])
     domain_name = StringField('Domain',validators=[DataRequired])
     qty = IntegerField('Qty')
+    precision = IntegerField('Decimal Points')
     

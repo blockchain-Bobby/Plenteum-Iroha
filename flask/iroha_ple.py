@@ -16,26 +16,26 @@ def send_transaction_and_print_status(transaction):
     for status in net.tx_status_stream(transaction):
         print(status)
 
-def create_users():
+def create_users(user_name,domain):
     global iroha
     pk = ic.private_key()
     user_private_key = pk
     user_public_key = ic.derive_public_key(user_private_key)
     init_cmds = [
-        iroha.command('CreateAccount', account_name='alice', domain_id='casino',
+        iroha.command('CreateAccount', account_name=user_name, domain_id=domain,
                       public_key=user_public_key)
     ]
     init_tx = iroha.transaction(init_cmds)
     ic.sign_transaction(init_tx, admin_private_key)
     send_transaction_and_print_status(init_tx)
-    print('Public')
-
-def create_new_asset():
+    return pk
+    
+def create_new_asset(username,asset,domain,precision,qty):
     global iroha
     user_tx = iroha.transaction(
-        [iroha.command('CreateAsset', asset_name='bitcoin',
-            domain_id='test', precision=2, amount='1')],
-        creator_account='bob@test'
+        [iroha.command('CreateAsset', asset_name=asset,
+            domain_id=domain, precision=precision, amount='1')],
+        creator_account=username
     )
     ic.sign_transaction(user_tx, admin_private_key)
     send_transaction_and_print_status(user_tx)
