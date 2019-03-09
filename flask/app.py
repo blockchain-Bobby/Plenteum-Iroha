@@ -27,7 +27,8 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(100), unique=True, nullable=False)
-    pub_key = Column(String(100), unique = True, nullable=False)
+    ple_pub_key = Column(String(100), unique = True, nullable=False)
+    iroha_pub_key = Column(String(100), nullable=False)
     password_hash = Column(String(255), nullable=False)
 
 def create_turtle_payment():
@@ -72,13 +73,13 @@ def signup():
 
     if form.is_submitted():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data, pub_key=form.pub_key.data, password_hash=hashed_password)
         user_name = form.username.data
         domain = form.domain.data
-        create_users(user_name=user_name,domain=domain)
+        iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain)
+        new_user = User(username=form.username.data, ple_pub_key=form.pub_key.data, iroha_pub_key=iroha_pub_key, password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        return '<h1>New user has been created!</h1>'
+        return '<h1>New user has been created!, your private key is: '+ str(iroha_pvt_key) + '</h1>'
     
     return render_template('signup.html', form=form)
 

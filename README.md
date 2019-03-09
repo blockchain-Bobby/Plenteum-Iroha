@@ -96,6 +96,6 @@ For dev purposes, all of the required configurations have been edited from the e
 Next you need to start the Iroha Daemon, Irohad which is located in build/bin folder.
 first change into thelaunch the daemon with the following command
 
-irohad --config config.docker --genesis_block genesis.block --keypair_name node0
+./build/bin/irohad --config ./flask/configs/config.docker --genesis_block ./flask/configs/genesis.block --keypair_name ./flask/configs/node0
 
 You may interact with the Iroha

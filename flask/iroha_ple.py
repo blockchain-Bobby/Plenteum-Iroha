@@ -5,7 +5,7 @@ import sys
 
 iroha = Iroha('admin@test')
 net = IrohaGrpc()
-admin_private_key = open('.configs/admin@test.priv').read()
+admin_private_key = open('./configs/admin@test.priv').read()
 
 def send_transaction_and_print_status(transaction):
     global net
@@ -28,7 +28,7 @@ def create_users(user_name,domain):
     init_tx = iroha.transaction(init_cmds)
     ic.sign_transaction(init_tx, admin_private_key)
     send_transaction_and_print_status(init_tx)
-    return pk
+    return user_private_key, user_public_key
     
 def create_new_asset(username,asset,domain,precision,qty):
     global iroha
