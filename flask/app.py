@@ -12,7 +12,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from forms import NewAssetForm, RegistrationForm, LoginForm
 from iroha_ple import create_users, create_new_asset
 import requests as r
-import pandas as pd
+#import pandas as pd
 
 app = Flask(__name__)
 app.config.from_object('config')

@@ -7,6 +7,7 @@ iroha = Iroha('admin@test')
 net = IrohaGrpc()
 admin_private_key = open('./configs/admin@test.priv').read()
 
+
 def send_transaction_and_print_status(transaction):
     global net
     hex_hash = binascii.hexlify(ic.hash(transaction))
@@ -39,3 +40,9 @@ def create_new_asset(username,asset,domain,precision,qty):
     )
     ic.sign_transaction(user_tx, admin_private_key)
     send_transaction_and_print_status(user_tx)
+
+def transfer_asset(owner,recepient,asset,domain,precision,qty):
+    global iroha
+    user_tx = iroha.transaction(
+        iroha.command('TransferAsset', src_account_id='admin@test', dest_account_id='bob@test',
+                      asset_id='dogecoin#test', description='init doge', amount=qty)
