@@ -10,6 +10,10 @@ The API for the project will be done using Python 3's Flask framework, allowing 
 
 Intergration with Plenteum is done via REST API calls to Plenteum App Services.
 
+IPFS is used for storage of content. Users can upload via the front end, do a REST POST request or have users upload content themselves and simply supply the IPFS location hash.
+
+This example is the basic source code for the Plenteum Asset Service, which allows users to create, store and issue assets sercurely and optionally integrate it with their private Iroha chain / Asset Service, allowing users to have both the security and transparency of a public blockchain whilst private organizations can keep their transactions on a seperate permissioned chain and join public nodes.
+
 # What is Hyperledger Iroha?
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
