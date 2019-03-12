@@ -30,19 +30,6 @@ class User(UserMixin, db.Model):
     ple_pub_key = Column(String(100), unique = True, nullable=False)
     iroha_pub_key = Column(String(100), nullable=False)
     password_hash = Column(String(255), nullable=False)
-
-def create_turtle_payment():
-    turtle_pay = 'https://api.turtlepay.io/v1/new'
-    tx_details ={
-        'address': 'TRTLuwh9Jfx4nhzmsZwaciNVPUMYxicu4XNUT4X9pwBaN5gsBTGDEHFHTVTtDrAu9A5TP3RBqAGjJTb6RC2FEsJPCogz4m7cbhw',
-        'amount': 1000,
-        'callback': '',
-        'confirmations': 60,
-        'userDefined':{}
-        }
-        #add in callback"
-    payment_details = r.post(turtle_pay, json=tx_details)
-    return payment_details
   
 @login_manager.user_loader
 def load_user(user_id):
@@ -83,15 +70,16 @@ def signup():
     
     return render_template('signup.html', form=form)
 
+#create new asset
 @app.route('/new_asset', methods=['GET', 'POST'])
 def new_asset():
     form = NewAssetForm()
 
     if form.is_submitted():
-        create_new_asset(username='admin@test',asset=form.asset_name.data,domain=form.domain_name.data,precision=form.precision.data,qty=form.qty.data)
+        create_new_asset(username='admin@test',asset=form.asset_name.data,domain=form.domain_name.data,precision=form.precision.data)
         return '<h1>New Asset has been created!</h1>'
 
-    return render_template('signup.html', form=form)
+    return render_template('new_asset.html', form=form)
 
 @app.route('/transfer_asset', methods=['GET', 'POST'])
 def transfer_asset():

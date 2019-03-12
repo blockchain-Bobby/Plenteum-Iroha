@@ -1,5 +1,9 @@
 import requests as r
 
+def get_info():
+    result = r.get('https://cache.pleapps.plenteum.com/info')
+    return result
+
 def create_turtle_payment():
     turtle_pay = 'https://api.turtlepay.io/v1/new'
     tx_details ={

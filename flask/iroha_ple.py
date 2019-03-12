@@ -43,11 +43,11 @@ def create_users(user_name,domain):
     send_transaction_and_print_status(init_tx)
     return user_private_key, user_public_key
     
-def create_new_asset(username,asset,domain,precision,qty):
+def create_new_asset(username,asset,domain,precision):
     global iroha
     user_tx = iroha.transaction(
         [iroha.command('CreateAsset', asset_name=asset,
-            domain_id=domain, precision=precision, amount='1')],
+            domain_id=domain, precision=precision)],
         creator_account=username
     )
     ic.sign_transaction(user_tx, admin_private_key)

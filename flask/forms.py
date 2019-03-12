@@ -17,6 +17,5 @@ class RegistrationForm(FlaskForm):
 class NewAssetForm(FlaskForm):
     asset_name = StringField('Asset Name',validators=[DataRequired])
     domain_name = StringField('Domain',validators=[DataRequired])
-    qty = IntegerField('Qty')
     precision = IntegerField('Decimal Points')
     
