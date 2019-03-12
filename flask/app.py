@@ -93,6 +93,16 @@ def new_asset():
 
     return render_template('signup.html', form=form)
 
+@app.route('/transfer_asset', methods=['GET', 'POST'])
+def transfer_asset():
+    form = NewAssetForm()
+
+    if form.is_submitted():
+        create_new_asset(username='admin@test',asset=form.asset_name.data,domain=form.domain_name.data,precision=form.precision.data,qty=form.qty.data)
+        return '<h1>New Asset has been created!</h1>'
+
+    return render_template('signup.html', form=form)
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
