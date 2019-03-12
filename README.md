@@ -38,6 +38,24 @@ Iroha has the following features:
 
 Among the non-functional requirements can be noted a high degree of network fault tolerance _(Byzantine Fault Tolerant)_.
 
+## Iroha Consensus
+
+A consensus algorithm is a process in computer science used to achieve agreement on a single data value among
+distributed processes or systems. Consensus algorithms are designed to achieve reliability in a network involving
+multiple unreliable nodes. Solving that issue – known as the consensus problem – is important in distributed computing
+and multi-agent systems.
+
+Consensus, as an algorithm
+
+ An algorithm to achieve agreement on a block among peers in the network. By having it in the system,
+ reliability is increased.
+
+Consensus, as a component
+
+ Preserves consistent state among the peers within a peer network. Iroha uses own consensus algorithm
+ called Yet Another Consensus (aka YAC). Distinctive features of this algorithm are its scalability, performance, and Byzantine fault tolerance. If there are missing blocks, they will be downloaded from another
+ peer via Synchronizer. Committed blocks are stored in Ametsuchi block storage.
+
 ## Documentation
 
 Our documentation is hosted at ReadTheDocs service here: [http://iroha.readthedocs.io](http://iroha.readthedocs.io).
