@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import NewAssetForm, RegistrationForm, LoginForm
-from iroha_ple import create_users, create_new_asset, set_account_detail, get_user_details, get_account_assets
+from iroha_server import create_users, create_new_asset, set_account_detail, get_user_details, get_account_assets
 import requests as r
 
 app = Flask(__name__)
