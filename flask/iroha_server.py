@@ -1,13 +1,13 @@
 import binascii
 from iroha import IrohaCrypto as ic
 from iroha import Iroha, IrohaGrpc
+from iroha.primitive_pb2 import can_set_my_account_detail
 import sys
+import json
 
 iroha = Iroha('admin@test')
-#populate from login form. iroha = Iroha('user@domain')
 net = IrohaGrpc()
 admin_private_key = open('./configs/admin@test.priv').read()
-#user_private_key = open('./configs/user@test.priv').read() or from form.
 
 def send_transaction_and_print_status(transaction):
     global net
@@ -31,8 +31,11 @@ def generate_kp():
     user_public_key = ic.derive_public_key(user_private_key)
     return user_private_key, user_public_key
 
-def create_users(user_name,domain):
+def create_users(user_name,domain,ple_id,pwd_hash):
     global iroha
+    """
+    register new user, grant permission to admin and set password & plenteum address
+    """
     user_private_key, user_public_key = generate_kp()
     init_cmds = [
         iroha.command('CreateAccount', account_name=user_name, domain_id=domain,
@@ -41,6 +44,19 @@ def create_users(user_name,domain):
     init_tx = iroha.transaction(init_cmds)
     ic.sign_transaction(init_tx, admin_private_key)
     send_transaction_and_print_status(init_tx)
+    account_id = user_name + '@' + domain
+    grant_permission = iroha.transaction([
+        iroha.command('GrantPermission', account_id='admin@test', permission=can_set_my_account_detail)
+    ], creator_account=account_id)
+    ic.sign_transaction(grant_permission, user_private_key)
+    send_transaction_and_print_status(grant_permission)
+    account_details = iroha.transaction([
+        iroha.command('SetAccountDetail',
+                      account_id=account_id, key='password', value=pwd_hash),
+        iroha.command('SetAccountDetail',
+                      account_id=account_id, key='ple_id', value=ple_id)], creator_account='admin@test')
+    ic.sign_transaction(account_details, admin_private_key)
+    send_transaction_and_print_status(account_details)
     return user_private_key, user_public_key
 
 def add_asset_to_admin(asset_id, qty):
@@ -76,9 +92,9 @@ def add_asset_to_user():
     ic.sign_transaction(tx, admin_private_key)
     send_transaction_and_print_status(tx)
 
-def create_ple_doman_and_asset():
+def join_plenteum_asset_ledger():
     """
-    Creates domain 'domain' and asset 'coin#domain' with precision 2
+    Creates Plenteum Domain 'domain' and asset 'coin#domain' with precision 2 and joins global network
     """
     commands = [
         iroha.command('CreateDomain', domain_id='domain', default_role='user'),
@@ -152,5 +168,19 @@ def get_user_details(account_id):
 
     response = net.send_query(query)
     data = response.account_detail_response
+    user = json.loads(str(data.detail))
     print('Account id = {}, details = {}'.format(account_id, data.detail))
-    return data
+    return user
+
+def get_user_password(account_id):
+    global iroha
+    """
+    Get all the kv-storage entries for user@domain
+    """
+    query = iroha.query('GetAccountDetail', account_id=account_id)
+    ic.sign_query(query, admin_private_key)
+    response = net.send_query(query)
+    data = response.account_detail_response
+    user = json.loads(str(data.detail))
+    pwd_hash = user['admin@test']['password']
+    return pwd_hash

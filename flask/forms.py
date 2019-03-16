@@ -4,9 +4,8 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 class LoginForm(FlaskForm):
-    username = StringField('Username',validators=[DataRequired])
+    account_id = StringField('Username @ Domain',validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
-    domain = StringField('Domain Name', validators=[DataRequired])
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',validators=[DataRequired])

@@ -1,38 +1,23 @@
 #very dirty code needs to be cleaned up
 from flask import Flask, render_template, redirect, url_for, render_template_string
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm 
-from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
-from flask_sqlalchemy  import SQLAlchemy
-from sqlalchemy import Float, Column, Boolean, BigInteger ,Integer, String, ForeignKey, Date, DateTime 
-from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import NewAssetForm, RegistrationForm, LoginForm
-from iroha_server import create_users, create_new_asset, set_account_detail, get_user_details, get_account_assets
+from iroha_server import create_users, create_new_asset, set_account_detail, get_user_details, get_account_assets, get_user_password
 import requests as r
 
 app = Flask(__name__)
 app.config.from_object('config')
-db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 bootstrap = Bootstrap(app)
-
-#tables need to be moved to seperate file
-class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(100), unique=True, nullable=False)
-    ple_pub_key = Column(String(100), nullable=False)
-    iroha_pub_key = Column(String(100), nullable=False)
-    password_hash = Column(String(255), nullable=False)
   
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    #return user from iroha
+    return 
 
 @app.route('/')
 def index():
@@ -41,13 +26,12 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            if check_password_hash(user.password_hash, form.password.data):
-                login_user(user, remember=form.remember.data)
-                return redirect(url_for('dashboard'))
+        user = form.account_id.data
+        password_hash = get_user_password(user)
+        if check_password_hash(password_hash, form.password.data):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('dashboard'))
 
         return '<h1>Invalid username or password</h1>'
     
@@ -62,12 +46,7 @@ def signup():
         user_name = form.username.data
         domain = form.domain.data
         ple_key = form.ple_key.data
-        account_id = user_name + '@' + domain
-        iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain)
-        set_account_detail(account_id,'PLE Address',ple_key)
-        new_user = User(username=user_name, ple_pub_key=ple_key, iroha_pub_key=iroha_pub_key, password_hash=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
+        iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain,pwd_hash=hashed_password,ple_id=ple_key)
         return '<h1>New user has been created!, your private key is: '+ str(iroha_pvt_key) + '</h1>'
     
     return render_template('signup.html', form=form)
@@ -86,7 +65,7 @@ def new_asset():
 #view account keys n values
 @app.route('/accounts', methods=['GET', 'POST'])
 def account_details():
-    get_account_assets()
+    get_user_details('biscuit@test')
     return '<h2> check console for results <h2/>'
 
 #view account keys n values
