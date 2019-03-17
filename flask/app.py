@@ -1,8 +1,7 @@
 #very dirty code needs to be cleaned up
-from flask import Flask, render_template, redirect, url_for, render_template_string
+from flask import Flask, render_template, redirect, url_for, render_template_string, session
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import NewAssetForm, RegistrationForm, LoginForm
 from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password
 import json
@@ -10,15 +9,9 @@ import requests as r
 
 app = Flask(__name__)
 app.config.from_object('config')
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 bootstrap = Bootstrap(app)
-  
-@login_manager.user_loader
-def load_user(user_id):
-    #return user from iroha
-    return 
+
+account_id = ''
 
 @app.route('/')
 def index():
@@ -27,13 +20,12 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
+    if form.is_submitted():
         user = form.account_id.data
         password_hash = get_user_password(user)
         if check_password_hash(password_hash, form.password.data):
-            login_user(user, remember=form.remember.data)
+            session['account_id'] = user
             return redirect(url_for('dashboard'))
-
         return '<h1>Invalid username or password</h1>'
     
     return render_template('login.html', form=form)
@@ -58,14 +50,14 @@ def new_asset():
     form = NewAssetForm()
 
     if form.is_submitted():
-        create_and_issue_new_asset(asset=form.asset_name.data,domain=form.domain.data,precision=form.precision.data,qty=form.qty.data,account_id=form.account_id.data,description=form.description.data)
-        return '<h1>New Asset has been created!</h1>'
-
+        if session['account_id']:
+            create_and_issue_new_asset(asset=form.asset_name.data,domain=form.domain.data,precision=form.precision.data,qty=form.qty.data,account_id=session['account_id'],description=form.description.data)
+            return redirect(url_for('dashboard'))
     return render_template('new_asset.html', form=form)
 
 #view account keys n values
-@app.route('/accounts', methods=['GET', 'POST'])
-def account_details():
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
     user = get_user_details('biscuit@test')
     return str(user)
 
@@ -73,19 +65,16 @@ def account_details():
 @app.route('/all_assets', methods=['GET', 'POST'])
 def all_assets():
     assets = get_domain_assets()
-    return json.dumps(assets)
+    return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
 
 '''add transfer asset, view account details'''
 
 @app.route('/dashboard')
-@login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    return render_template('dashboard.html', name=session['account_id'])
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
     return redirect(url_for('index'))
 
 if __name__ == '__main__':

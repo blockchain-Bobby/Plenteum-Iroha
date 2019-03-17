@@ -6,6 +6,7 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 class LoginForm(FlaskForm):
     account_id = StringField('Username @ Domain',validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
+    remember = BooleanField('Remember Me')
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',validators=[DataRequired])
@@ -15,7 +16,6 @@ class RegistrationForm(FlaskForm):
     register = SubmitField('Register')
 
 class NewAssetForm(FlaskForm):
-    account_id = StringField('Username @ Domain',validators=[DataRequired])
     asset_name = StringField('Asset Name',validators=[DataRequired])
     domain = StringField('Domain',validators=[DataRequired])
     description = StringField('Asset Description',validators=[DataRequired])
