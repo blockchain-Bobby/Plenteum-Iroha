@@ -4,7 +4,8 @@ from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import NewAssetForm, RegistrationForm, LoginForm
-from iroha_server import create_users, create_new_asset, set_account_detail, get_user_details, get_account_assets, get_user_password
+from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password
+import json
 import requests as r
 
 app = Flask(__name__)
@@ -57,7 +58,7 @@ def new_asset():
     form = NewAssetForm()
 
     if form.is_submitted():
-        create_new_asset(asset=form.asset_name.data,domain=form.domain.data,precision=form.precision.data,qty=form.qty.data)
+        create_and_issue_new_asset(asset=form.asset_name.data,domain=form.domain.data,precision=form.precision.data,qty=form.qty.data,account_id=form.account_id.data,description=form.description.data)
         return '<h1>New Asset has been created!</h1>'
 
     return render_template('new_asset.html', form=form)
@@ -65,14 +66,14 @@ def new_asset():
 #view account keys n values
 @app.route('/accounts', methods=['GET', 'POST'])
 def account_details():
-    get_user_details('biscuit@test')
-    return '<h2> check console for results <h2/>'
+    user = get_user_details('biscuit@test')
+    return str(user)
 
 #view account keys n values
 @app.route('/all_assets', methods=['GET', 'POST'])
 def all_assets():
-    get_account_assets()
-    return '<h2> check console for results <h2/>'
+    assets = get_domain_assets()
+    return json.dumps(assets)
 
 '''add transfer asset, view account details'''
 

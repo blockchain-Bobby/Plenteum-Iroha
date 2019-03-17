@@ -71,7 +71,19 @@ def add_asset_to_admin(asset_id, qty):
     ic.sign_transaction(tx, admin_private_key)
     send_transaction_and_print_status(tx)
 
-def create_new_asset(asset,domain,precision,qty):
+def add_asset_to_user(account_id, asset_id, qty):
+    global iroha
+    """
+    Add asset supply and assign to 'creator'
+    """
+    tx = iroha.transaction([
+        iroha.command('AddAssetQuantity',
+                      asset_id=asset_id, amount=qty)
+    ])
+    ic.sign_transaction(tx, admin_private_key)
+    send_transaction_and_print_status(tx)
+
+def create_and_issue_new_asset(asset,domain,precision,qty,account_id,description):
     global iroha
     user_tx = iroha.transaction(
         [iroha.command('CreateAsset', asset_name=asset,
@@ -80,17 +92,7 @@ def create_new_asset(asset,domain,precision,qty):
     send_transaction_and_print_status(user_tx)
     asset_id = asset + '#' + domain
     add_asset_to_admin(asset_id=asset_id,qty=qty)
-
-def add_asset_to_user():
-    """
-    Add 1000.00 units of 'coin#domain' to 'admin@test'
-    """
-    tx = iroha.transaction([
-        iroha.command('AddAssetQuantity',
-                      asset_id='coin#domain', amount='1000.00')
-    ])
-    ic.sign_transaction(tx, admin_private_key)
-    send_transaction_and_print_status(tx)
+    transfer_asset('admin@test',account_id,asset_id,description,domain,qty)
 
 def join_plenteum_asset_ledger():
     """
@@ -107,9 +109,9 @@ def join_plenteum_asset_ledger():
 
 def transfer_asset(owner,recepient,asset_id,description,domain,qty):
     global iroha
-    user_tx = iroha.transaction(
+    user_tx = iroha.transaction([
         iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recepient,
-                      asset_id=asset_id, description=description, amount=qty))
+                      asset_id=asset_id, description=description, amount=qty)])
     ic.sign_transaction(user_tx, admin_private_key)
     send_transaction_and_print_status(user_tx)
 
@@ -146,6 +148,20 @@ def get_asset_info(asset_id):
     print('Asset id = {}, precision = {}'.format(data.asset_id, data.precision))
 
 def get_account_assets():
+    """
+    List all the assets of user@domain
+    """
+    query = iroha.query('GetAccountAssets', account_id='admin@test')
+    ic.sign_query(query, admin_private_key)
+
+    response = net.send_query(query)
+    data = response.account_assets_response.account_assets
+    for asset in data:
+        print('Asset id = {}, balance = {}'.format(
+            asset.asset_id, asset.balance))
+    return data
+
+def get_domain_assets():
     """
     List all the assets of user@domain
     """

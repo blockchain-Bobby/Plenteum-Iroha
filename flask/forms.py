@@ -15,8 +15,19 @@ class RegistrationForm(FlaskForm):
     register = SubmitField('Register')
 
 class NewAssetForm(FlaskForm):
+    account_id = StringField('Username @ Domain',validators=[DataRequired])
     asset_name = StringField('Asset Name',validators=[DataRequired])
     domain = StringField('Domain',validators=[DataRequired])
+    description = StringField('Asset Description',validators=[DataRequired])
     precision = IntegerField('Decimal Points')
     qty = StringField('Total Supply')
     
+class TransferAssetForm(FlaskForm):
+    account_id = StringField('Username @ Domain',validators=[DataRequired])
+    asset_name = StringField('Asset Name',validators=[DataRequired])
+    domain = StringField('Domain',validators=[DataRequired])
+    description = StringField('Asset Description',validators=[DataRequired])
+    private_key = StringField('Private Key',validators=[DataRequired])
+    precision = IntegerField('Decimal Points')
+    qty = StringField('Total Supply')
+ 
