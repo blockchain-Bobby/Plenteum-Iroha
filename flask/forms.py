@@ -8,10 +8,16 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired])
     remember = BooleanField('Remember Me')
 
-class RegistrationForm(FlaskForm):
+class UserRegistrationForm(FlaskForm):
     username = StringField('Username',validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
     ple_key = StringField('PLe Public Address',validators=[DataRequired])
+    domain = StringField('Domain Name')
+    register = SubmitField('Register')
+
+class DomainRegistrationForm(FlaskForm):
+    username = StringField('Admin Username',validators=[DataRequired])
+    admin_public_key = StringField('Admin Public Key',validators=[DataRequired])
     domain = StringField('Domain Name')
     register = SubmitField('Register')
 
@@ -21,6 +27,8 @@ class NewAssetForm(FlaskForm):
     description = StringField('Asset Description',validators=[DataRequired])
     precision = IntegerField('Decimal Points')
     qty = StringField('Total Supply')
+    file_upload = FileField('File')
+    ipfs_hash = StringField('IPFS Location')
     
 class TransferAssetForm(FlaskForm):
     account_id = StringField('Username @ Domain',validators=[DataRequired])
@@ -28,6 +36,16 @@ class TransferAssetForm(FlaskForm):
     domain = StringField('Domain',validators=[DataRequired])
     description = StringField('Asset Description',validators=[DataRequired])
     private_key = StringField('Private Key',validators=[DataRequired])
-    precision = IntegerField('Decimal Points')
     qty = StringField('Total Supply')
  
+class SellAssetMarketplaceForm(FlaskForm):
+    account_id = 'asset_marketplace@test'
+    asset_id = StringField('Asset ID',validators=[DataRequired])
+    description = StringField('Asset Description',validators=[DataRequired])
+    private_key = StringField('Private Key',validators=[DataRequired])
+    qty = StringField('Total Supply')
+    ple_cost = StringField('Price in PLE')
+ 
+class AssetDetailsForm(FlaskForm):
+     key = StringField('Key')
+     value = StringField('Value')

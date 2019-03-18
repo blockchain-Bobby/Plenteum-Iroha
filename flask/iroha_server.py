@@ -4,6 +4,7 @@ from iroha import Iroha, IrohaGrpc
 from iroha.primitive_pb2 import can_set_my_account_detail
 import sys
 import json
+import os
 
 iroha = Iroha('admin@test')
 net = IrohaGrpc()
@@ -53,6 +54,37 @@ def create_users(user_name,domain,ple_id,pwd_hash):
     account_details = iroha.transaction([
         iroha.command('SetAccountDetail',
                       account_id=account_id, key='password', value=pwd_hash),
+        iroha.command('SetAccountDetail',
+                      account_id=account_id, key='ple_id', value=ple_id)], creator_account='admin@test')
+    ic.sign_transaction(account_details, admin_private_key)
+    send_transaction_and_print_status(account_details)
+    user_pvt_file = './configs/' + account_id +'.priv'
+    user_pub_file = './configs/' + account_id +'.pub'
+    user_private_key_file = open(user_pvt_file).write(admin_private_key)
+    user_publcic_key_file = open(user_pvt_file).write(admin_private_key)
+    return user_private_key, user_public_key
+    
+
+def create_domain_asset_manager(domain,ple_id):
+    global iroha
+    """
+    register new domain asset manager and set password & plenteum address
+    """
+    user_private_key, user_public_key = generate_kp()
+    init_cmds = [
+        iroha.command('CreateAccount', account_name="asset_manager", domain_id=domain,
+                      public_key=user_public_key)
+    ]
+    init_tx = iroha.transaction(init_cmds)
+    ic.sign_transaction(init_tx, admin_private_key)
+    send_transaction_and_print_status(init_tx)
+    account_id = 'asset_manager@' + domain
+    grant_permission = iroha.transaction([
+        iroha.command('GrantPermission', account_id='admin@test', permission=can_set_my_account_detail)
+    ], creator_account=account_id)
+    ic.sign_transaction(grant_permission, user_private_key)
+    send_transaction_and_print_status(grant_permission)
+    account_details = iroha.transaction([
         iroha.command('SetAccountDetail',
                       account_id=account_id, key='ple_id', value=ple_id)], creator_account='admin@test')
     ic.sign_transaction(account_details, admin_private_key)
@@ -138,7 +170,7 @@ def set_account_detail(account_id,key,value):
 
 def get_asset_info(asset_id):
     """
-    Get asset info for coin#domain
+    Get asset info
     :return:
     """
     query = iroha.query('GetAssetInfo', asset_id=asset_id)
@@ -167,7 +199,6 @@ def get_domain_assets():
     """
     query = iroha.query('GetAccountAssets', account_id='admin@test')
     ic.sign_query(query, admin_private_key)
-
     response = net.send_query(query)
     data = response.account_assets_response.account_assets
     for asset in data:

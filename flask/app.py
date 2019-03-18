@@ -1,17 +1,19 @@
-#very dirty code needs to be cleaned up
-from flask import Flask, render_template, redirect, url_for, render_template_string, session
+#!python3.7
+'''/**
+ * Copyright The Plenteum Developers. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */'''
+
+from flask import Flask, jsonify,render_template, redirect, url_for, render_template_string, session
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import NewAssetForm, RegistrationForm, LoginForm
+from forms import NewAssetForm, UserRegistrationForm, LoginForm, DomainRegistrationForm, TransferAssetForm
 from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password
-import json
 import requests as r
 
 app = Flask(__name__)
 app.config.from_object('config')
 bootstrap = Bootstrap(app)
-
-account_id = ''
 
 @app.route('/')
 def index():
@@ -32,7 +34,7 @@ def login():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = RegistrationForm()
+    form = UserRegistrationForm()
 
     if form.is_submitted():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
@@ -40,11 +42,10 @@ def signup():
         domain = form.domain.data
         ple_key = form.ple_key.data
         iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain,pwd_hash=hashed_password,ple_id=ple_key)
-        return '<h1>New user has been created!, your private key is: '+ str(iroha_pvt_key) + '</h1>'
+        return '<h3>New user has been created!, your private key is: '+ str(iroha_pvt_key) + '</h3>'
     
     return render_template('signup.html', form=form)
 
-#create new asset
 @app.route('/new_asset', methods=['GET', 'POST'])
 def new_asset():
     form = NewAssetForm()
@@ -55,19 +56,15 @@ def new_asset():
             return redirect(url_for('dashboard'))
     return render_template('new_asset.html', form=form)
 
-#view account keys n values
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    user = get_user_details('biscuit@test')
-    return str(user)
+    user = get_user_details(session['account_id'])
+    return jsonify(user)
 
-#view account keys n values
-@app.route('/all_assets', methods=['GET', 'POST'])
-def all_assets():
+@app.route('/all_domain_assets', methods=['GET', 'POST'])
+def all_domain_assets():
     assets = get_domain_assets()
     return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
-
-'''add transfer asset, view account details'''
 
 @app.route('/dashboard')
 def dashboard():
