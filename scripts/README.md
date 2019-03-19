@@ -35,3 +35,5 @@ cmake --build build --target test
 ## Execute `iroha-cli` with `irohad` running
 
 Execute `run-iroha-dev.sh` again to attach to existing container.
+
+./build/bin/irohad --config ./flask/configs/config.docker --genesis_block ./flask/configs/genesis.block --keypair_name ./flask/configs/node0

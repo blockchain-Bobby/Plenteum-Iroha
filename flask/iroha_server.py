@@ -60,11 +60,10 @@ def create_users(user_name,domain,ple_id,pwd_hash):
     send_transaction_and_print_status(account_details)
     user_pvt_file = './configs/' + account_id +'.priv'
     user_pub_file = './configs/' + account_id +'.pub'
-    user_private_key_file = open(user_pvt_file).write(admin_private_key)
-    user_publcic_key_file = open(user_pvt_file).write(admin_private_key)
+    user_private_key_file = open(user_pvt_file,'wb+').write(user_public_key)
+    user_public_key_file = open(user_pub_file,'wb+').write(user_private_key)
     return user_private_key, user_public_key
     
-
 def create_domain_asset_manager(domain,ple_id):
     global iroha
     """

@@ -31,3 +31,4 @@ echo "Iroha is mapped to host port ${IROHA_PORT}"
 echo "Debugger is mapped to host port ${DEBUGGER_PORT}"
 echo ""
 docker-compose -f ${COMPOSE} exec node /bin/bash
+./build/bin/irohad --config ./flask/configs/config.docker --genesis_block ./flask/configs/genesis.block --keypair_name ./flask/configs/node0

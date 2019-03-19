@@ -1,8 +1,7 @@
-#!python3.7
-'''/**
- * Copyright The Plenteum Developers. All Rights Reserved.
- * SPDX-License-Identifier: Apache-2.0
- */'''
+#!/usr/bin/env python3
+###############################################################################
+#                                   Imports                                   #
+###############################################################################
 
 from flask import Flask, jsonify,render_template, redirect, url_for, render_template_string, session
 from flask_bootstrap import Bootstrap
@@ -11,9 +10,18 @@ from forms import NewAssetForm, UserRegistrationForm, LoginForm, DomainRegistrat
 from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password
 import requests as r
 
+###############################################################################
+#                                  Application Setup                          #
+###############################################################################
+
 app = Flask(__name__)
 app.config.from_object('config')
 bootstrap = Bootstrap(app)
+
+
+###############################################################################
+#                                  Functions / API End Points                 #
+###############################################################################
 
 @app.route('/')
 def index():
