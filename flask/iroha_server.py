@@ -5,6 +5,7 @@ from iroha.primitive_pb2 import can_set_my_account_detail
 import sys
 import json
 import os
+import pandas as pd
 
 iroha = Iroha('admin@test')
 net = IrohaGrpc()
@@ -178,20 +179,26 @@ def get_asset_info(asset_id):
     data = response.asset_response.asset
     print('Asset id = {}, precision = {}'.format(data.asset_id, data.precision))
 
-def get_account_assets():
+def get_account_assets(account_id):
     """
     List all the assets of user@domain
     """
-    query = iroha.query('GetAccountAssets', account_id='admin@test')
+    query = iroha.query('GetAccountAssets', account_id=account_id)
     ic.sign_query(query, admin_private_key)
 
     response = net.send_query(query)
     data = response.account_assets_response.account_assets
+    all_assets = []
     for asset in data:
+        assets = dict()
         print('Asset id = {}, balance = {}'.format(
             asset.asset_id, asset.balance))
-    return data
-
+        assets[u'asset_id'] = asset.asset_id
+        assets[u'balance'] = asset.balance
+        all_assets.append(assets)
+    df = pd.DataFrame.from_dict(all_assets)  
+    return df.to_html()
+    
 def get_domain_assets():
     """
     List all the assets of user@domain
@@ -200,11 +207,16 @@ def get_domain_assets():
     ic.sign_query(query, admin_private_key)
     response = net.send_query(query)
     data = response.account_assets_response.account_assets
+    all_assets = []
     for asset in data:
+        assets = dict()
         print('Asset id = {}, balance = {}'.format(
             asset.asset_id, asset.balance))
-    return data
-
+        assets[u'asset_id'] = asset.asset_id
+        all_assets.append(assets)
+    df = pd.DataFrame.from_dict(all_assets)  
+    return df.to_html()
+    
 def get_user_details(account_id):
     """
     Get all the kv-storage entries for user@domain
@@ -230,3 +242,28 @@ def get_user_password(account_id):
     user = json.loads(str(data.detail))
     pwd_hash = user['admin@test']['password']
     return pwd_hash
+
+def create_dummy_users(total):
+    global iroha
+    """
+    test to create 100 dummy user accounts
+    """
+    i = 0
+    while i < total:
+        i += 1
+        user_name = 'user' + str(i)
+        domain = 'test'
+        user_private_key, user_public_key = generate_kp()
+        init_cmds = [
+            iroha.command('CreateAccount', account_name=user_name, domain_id=domain,
+                        public_key=user_public_key)
+        ]
+        init_tx = iroha.transaction(init_cmds)
+        ic.sign_transaction(init_tx, admin_private_key)
+        send_transaction_and_print_status(init_tx)
+        account_id = user_name + '@' + domain
+        user_pvt_file = './configs/' + account_id +'.priv'
+        user_pub_file = './configs/' + account_id +'.pub'
+        user_private_key_file = open(user_pvt_file,'wb+').write(user_public_key)    
+        user_public_key_file = open(user_pub_file,'wb+').write(user_private_key)
+    print("All users have been created")

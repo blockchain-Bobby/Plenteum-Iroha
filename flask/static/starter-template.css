@@ -1,7 +1,24 @@
 body {
   padding-top: 50px;
+  margin: 0;
+  color: white;
+  min-width: 800px;
+  min-height: 400px;
+  background-image: url(../static/plenteumwallet_logo.png);
+  background-position: 50% 55%;
+  background-size: 25%;
+  background-repeat: no-repeat;
+  z-index:1;  
 }
 .starter-template {
   padding: 40px 15px;
   text-align: center;
+}
+.navbar {
+  background-color: #212327;
+  display: grid;
+  width: 100%;
+  grid-auto-flow: column;
+  grid-template-columns: 3fr repeat(6, auto);
+  z-index: 999; 
 }

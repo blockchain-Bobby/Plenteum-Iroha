@@ -7,7 +7,7 @@ from flask import Flask, jsonify,render_template, redirect, url_for, render_temp
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import NewAssetForm, UserRegistrationForm, LoginForm, DomainRegistrationForm, TransferAssetForm
-from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password
+from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password, get_account_assets
 import requests as r
 
 ###############################################################################
@@ -72,6 +72,12 @@ def profile():
 @app.route('/all_domain_assets', methods=['GET', 'POST'])
 def all_domain_assets():
     assets = get_domain_assets()
+    return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
+
+@app.route('/all_my_assets', methods=['GET', 'POST'])
+def all_my_assets():
+    account_id = session['account_id']
+    assets = get_account_assets(account_id)
     return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
 
 @app.route('/dashboard')
