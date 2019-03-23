@@ -7,7 +7,7 @@ from flask import Flask, jsonify,render_template, redirect, url_for, render_temp
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import NewAssetForm, UserRegistrationForm, LoginForm, DomainRegistrationForm, TransferAssetForm
-from iroha_server import create_users, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password, get_account_assets
+from iroha_server import create_users, create_domain, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password, get_account_assets
 import requests as r
 
 ###############################################################################
@@ -48,8 +48,7 @@ def signup():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
         user_name = form.username.data
         domain = form.domain.data
-        ple_key = form.ple_key.data
-        iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain,pwd_hash=hashed_password,ple_id=ple_key)
+        iroha_pvt_key, iroha_pub_key = create_users(user_name=user_name,domain=domain,pwd_hash=hashed_password)
         return '<h3>New user has been created!, your private key is: '+ str(iroha_pvt_key) + '</h3>'
     
     return render_template('signup.html', form=form)
@@ -64,6 +63,15 @@ def new_asset():
             return redirect(url_for('dashboard'))
     return render_template('new_asset.html', form=form)
 
+@app.route('/new_domain', methods=['GET', 'POST'])
+def new_domain():
+    form = DomainRegistrationForm()
+    if form.is_submitted():
+        if session['account_id']:
+            create_domain(domain=form.domain.data)
+            return redirect(url_for('dashboard'))
+    return render_template('new_domain.html', form=form)
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     user = get_user_details(session['account_id'])
@@ -72,13 +80,13 @@ def profile():
 @app.route('/all_domain_assets', methods=['GET', 'POST'])
 def all_domain_assets():
     assets = get_domain_assets()
-    return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
+    return render_template('asset_explorer.html',tables=[assets.to_html(classes='data')],titles=assets.columns.values,name=session['account_id'])
 
 @app.route('/all_my_assets', methods=['GET', 'POST'])
 def all_my_assets():
     account_id = session['account_id']
     assets = get_account_assets(account_id)
-    return render_template('asset_explorer.html',assets=assets,name=session['account_id'])
+    return render_template('asset_explorer.html',tables=[assets.to_html(classes='data')],titles=assets.columns.values,name=session['account_id'])
 
 @app.route('/dashboard')
 def dashboard():

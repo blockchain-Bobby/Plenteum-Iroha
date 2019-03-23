@@ -53,7 +53,10 @@ Asset Explorer
           <img src="../static/icon.png" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
           <h4>Label</h4>
           <span class="text-muted">All Assets</span>
-           {{ assets }} 
+          {% for table in tables %}
+            {{titles[loop.index]}}
+            {{ table|safe }}
+          {% endfor %}
           </div>
         </div>
       </div>

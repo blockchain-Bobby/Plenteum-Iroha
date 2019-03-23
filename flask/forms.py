@@ -11,13 +11,10 @@ class LoginForm(FlaskForm):
 class UserRegistrationForm(FlaskForm):
     username = StringField('Username',validators=[DataRequired])
     password = PasswordField('Password', validators=[DataRequired])
-    ple_key = StringField('PLe Public Address',validators=[DataRequired])
     domain = StringField('Domain Name')
     register = SubmitField('Register')
 
 class DomainRegistrationForm(FlaskForm):
-    username = StringField('Admin Username',validators=[DataRequired])
-    admin_public_key = StringField('Admin Public Key',validators=[DataRequired])
     domain = StringField('Domain Name')
     register = SubmitField('Register')
 

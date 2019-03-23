@@ -6,6 +6,13 @@ import sys
 import json
 import os
 import pandas as pd
+import ipfsapi
+
+ipfs_api = ipfsapi.connect('127.0.0.1', 5001)
+
+def add_to_ipfs(ipfs_file):
+    res = ipfs_api.add(ipfs_file)
+    return res
 
 iroha = Iroha('admin@test')
 net = IrohaGrpc()
@@ -20,7 +27,14 @@ def send_transaction_and_print_status(transaction):
     for status in net.tx_status_stream(transaction):
         print(status)
 
-def create_domain():
+def create_domain(domain):
+
+    commands = [
+        iroha.command('CreateDomain', domain_id=domain, default_role='user'),
+    ]
+    tx = ic.sign_transaction(
+        iroha.transaction(commands), admin_private_key)
+    send_transaction_and_print_status(tx)
     return
 
 def add_peer_node():
@@ -33,7 +47,7 @@ def generate_kp():
     user_public_key = ic.derive_public_key(user_private_key)
     return user_private_key, user_public_key
 
-def create_users(user_name,domain,ple_id,pwd_hash):
+def create_users(user_name,domain,pwd_hash):
     global iroha
     """
     register new user, grant permission to admin and set password & plenteum address
@@ -54,9 +68,7 @@ def create_users(user_name,domain,ple_id,pwd_hash):
     send_transaction_and_print_status(grant_permission)
     account_details = iroha.transaction([
         iroha.command('SetAccountDetail',
-                      account_id=account_id, key='password', value=pwd_hash),
-        iroha.command('SetAccountDetail',
-                      account_id=account_id, key='ple_id', value=ple_id)], creator_account='admin@test')
+                      account_id=account_id, key='password', value=pwd_hash),])
     ic.sign_transaction(account_details, admin_private_key)
     send_transaction_and_print_status(account_details)
     user_pvt_file = './configs/' + account_id +'.priv'
@@ -84,11 +96,6 @@ def create_domain_asset_manager(domain,ple_id):
     ], creator_account=account_id)
     ic.sign_transaction(grant_permission, user_private_key)
     send_transaction_and_print_status(grant_permission)
-    account_details = iroha.transaction([
-        iroha.command('SetAccountDetail',
-                      account_id=account_id, key='ple_id', value=ple_id)], creator_account='admin@test')
-    ic.sign_transaction(account_details, admin_private_key)
-    send_transaction_and_print_status(account_details)
     return user_private_key, user_public_key
 
 def add_asset_to_admin(asset_id, qty):
@@ -197,7 +204,7 @@ def get_account_assets(account_id):
         assets[u'balance'] = asset.balance
         all_assets.append(assets)
     df = pd.DataFrame.from_dict(all_assets)  
-    return df.to_html()
+    return df
     
 def get_domain_assets():
     """
@@ -215,7 +222,7 @@ def get_domain_assets():
         assets[u'asset_id'] = asset.asset_id
         all_assets.append(assets)
     df = pd.DataFrame.from_dict(all_assets)  
-    return df.to_html()
+    return df
     
 def get_user_details(account_id):
     """
@@ -267,3 +274,81 @@ def create_dummy_users(total):
         user_private_key_file = open(user_pvt_file,'wb+').write(user_public_key)    
         user_public_key_file = open(user_pub_file,'wb+').write(user_private_key)
     print("All users have been created")
+
+def alice_creates_exchange_batch():
+    alice_tx = iroha.transaction(
+        [iroha.command(
+            'TransferAsset', src_account_id='alice@test', dest_account_id='bob@test', asset_id='bitcoin#test',
+            amount='1'
+        )],
+        creator_account='alice@test',
+        quorum=2
+    )
+    bob_tx = iroha.transaction(
+        [iroha.command(
+            'TransferAsset', src_account_id='bob@test', dest_account_id='alice@test', asset_id='dogecoin#test',
+            amount='2'
+        )],
+        creator_account='bob@test'
+        # we intentionally omit here bob's quorum, since alice is the originator of the exchange and in general case
+        # alice does not know bob's quorum.
+        # bob knowing own quorum in case of accept should sign the tx using all the number of missing keys at once
+    )
+    iroha.batch(alice_tx, bob_tx, atomic=True)
+    # sign transactions only after batch meta creation
+    ic.sign_transaction(alice_tx, *alice_private_keys)
+    send_batch_and_print_status(alice_tx, bob_tx)
+
+def bob_accepts_exchange_request():
+    global net
+    q = ic.sign_query(
+        Iroha('bob@test').query('GetPendingTransactions'),
+        bob_private_keys[0]
+    )
+    pending_transactions = net.send_query(q)
+    for tx in pending_transactions.transactions_response.transactions:
+        if tx.payload.reduced_payload.creator_account_id == 'alice@test':
+            # we need do this temporarily, otherwise accept will not reach MST engine
+            del tx.signatures[:]
+        else:
+            ic.sign_transaction(tx, *bob_private_keys)
+    send_batch_and_print_status(
+        *pending_transactions.transactions_response.transactions)
+
+def check_no_pending_txs(account_id):
+    user_pvt_file = './configs/' + account_id +'.priv'
+    user_private_key_file = open(user_pvt_file).read()        
+    print(' ~~~ Checking pending txs:')
+    print(
+        net.send_query(
+            ic.sign_query(
+                iroha.query('GetPendingTransactions',
+                            creator_account=account_id),
+                user_private_key_file
+            )
+        )
+    )
+    print(' ~~~')
+
+def bob_declines_exchange_request():
+    print("""
+    
+    IT IS EXPECTED HERE THAT THE BATCH WILL FAIL STATEFUL VALIDATION
+    
+    """)
+    global net
+    q = ic.sign_query(
+        Iroha('bob@test').query('GetPendingTransactions'),
+        bob_private_keys[0]
+    )
+    pending_transactions = net.send_query(q)
+    for tx in pending_transactions.transactions_response.transactions:
+        if tx.payload.reduced_payload.creator_account_id == 'alice@test':
+            # we need do this temporarily, otherwise accept will not reach MST engine
+            del tx.signatures[:]
+        else:
+            # intentionally alice keys were used to fail bob's txs
+            ic.sign_transaction(tx, *alice_private_keys)
+            # zeroes as private keys are also acceptable
+    send_batch_and_print_status(
+        *pending_transactions.transactions_response.transactions)
