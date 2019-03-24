@@ -131,22 +131,20 @@ def create_and_issue_new_asset(asset,domain,precision,qty,account_id,description
     send_transaction_and_print_status(user_tx)
     asset_id = asset + '#' + domain
     add_asset_to_admin(asset_id=asset_id,qty=qty)
-    transfer_asset('admin@test',account_id,asset_id,description,domain,qty)
+    transfer_asset_from_admin('admin@test',account_id,asset_id,description,domain,qty)
 
-def join_plenteum_asset_ledger():
-    """
-    Creates Plenteum Domain 'domain' and asset 'coin#domain' with precision 2 and joins global network
-    """
-    commands = [
-        iroha.command('CreateDomain', domain_id='domain', default_role='user'),
-        iroha.command('CreateAsset', asset_name='coin',
-                      domain_id='domain', precision=2)
-    ]
-    tx = ic.sign_transaction(
-        iroha.transaction(commands), admin_private_key)
-    send_transaction_and_print_status(tx)
+def transfer_asset(owner,recepient,asset_id,description,qty):
+    user_iroha = Iroha(owner)
+    net = IrohaGrpc()
+    user_pvt_file = './configs/' + owner +'.priv'
+    user_private_key = open(user_pvt_file).read()
+    user_tx = user_iroha.transaction([
+        user_iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recepient,
+                      asset_id=asset_id, description=description, amount=qty)])
+    ic.sign_transaction(user_tx, user_private_key)
+    send_transaction_and_print_status(user_tx)
 
-def transfer_asset(owner,recepient,asset_id,description,domain,qty):
+def transfer_asset_from_admin(owner,recepient,asset_id,description,qty):
     global iroha
     user_tx = iroha.transaction([
         iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recepient,

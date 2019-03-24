@@ -44,30 +44,27 @@ Dashboard
             <li><a href="{{ url_for('new_asset') }}">New Asset</a></li>
             <li><a href="{{ url_for('all_domain_assets') }}">All Domain Assets</a></li>
             <li><a href="{{ url_for('all_my_assets') }}">All My Assets</a></li>
-            <li><a href="#">Profile</a></li>
+            <li><a href="{{ url_for('new_asset_transfer') }}">Transfer Assets</a></li>
+            <li><a href="http://block-explorer.plenteum.com/">Plenteum Block Explorer</a></li>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Welcome, {{ name }}</h1>
-
-          <div class="row placeholders">
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">All Orders</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">New Order</span>
-            </div>
-          </div>
+          <span class="text-muted">What is plenteum?</span>
         </div>
-        <div class="col-xs-6 col-sm-3 placeholder">
-          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-          <h4>Label</h4>
-          <span class="text-muted">Plenteum Information</span>
-        </div>
+            <div class="space-20"></div>
+            <p>
+                Plenteum is a new Cryptocurrency with a primary objective of replacing enforced transaction fees with a "DustFund" to sustain the long-term viability of the blockchain.
+                <br /><br />
+                The DustFund will then supply mining rewards, instead of fees when the coin enters its tail emission phase (when it’s nearing its total supply in circulation, and base rewards are lower).
+                <br /><br />
+                This aims to solve two existing problems with current implementations.
+                <ol>
+                    <li>- Dust clogging up wallets and the blockchain</li>
+                    <li>- Fees being too expensive for users, or not enough for miner’s incentive to sustain the blockchain into the future.</li>
+                </ol>
+          </p>
+          <p>
       </div>
     </div>
 {% endblock %}

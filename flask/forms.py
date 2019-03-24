@@ -28,12 +28,10 @@ class NewAssetForm(FlaskForm):
     ipfs_hash = StringField('IPFS Location')
     
 class TransferAssetForm(FlaskForm):
-    account_id = StringField('Username @ Domain',validators=[DataRequired])
-    asset_name = StringField('Asset Name',validators=[DataRequired])
-    domain = StringField('Domain',validators=[DataRequired])
-    description = StringField('Asset Description',validators=[DataRequired])
-    private_key = StringField('Private Key',validators=[DataRequired])
-    qty = StringField('Total Supply')
+    recipient = StringField('Recepient Username @ Domain',validators=[DataRequired])
+    asset_id = StringField('Asset Name # Domain',validators=[DataRequired])
+    description = StringField('Transaction Description',validators=[DataRequired])
+    qty = StringField('Total Amount')
  
 class SellAssetMarketplaceForm(FlaskForm):
     account_id = 'asset_marketplace@test'

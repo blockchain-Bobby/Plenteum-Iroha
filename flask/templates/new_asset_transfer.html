@@ -13,14 +13,12 @@ New Asset
 {% block content %}
 <div class="container">
 
-  <form class="form-signin" method="POST" action="/transfer_asset">
+  <form class="form-signin" method="POST" action="/new_asset_transfer">
     <h2 class="form-signin-heading">Transfer Asset</h2>
     {{ form.hidden_tag() }}
-    {{ wtf.form_field(form.account_id) }}
-    {{ wtf.form_field(form.asset_name) }}
-    {{ wtf.form_field(form.domain) }}
+    {{ wtf.form_field(form.recipient) }}
+    {{ wtf.form_field(form.asset_id) }}
     {{ wtf.form_field(form.description) }}
-    {{ wtf.form_field(form.precision) }}
     {{ wtf.form_field(form.qty) }}
     <button class="btn btn-lg btn-primary btn-block" type="submit">Send Asset!</button>
   </form>

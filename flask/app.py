@@ -6,8 +6,8 @@
 from flask import Flask, jsonify,render_template, redirect, url_for, render_template_string, session
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import NewAssetForm, UserRegistrationForm, LoginForm, DomainRegistrationForm, TransferAssetForm
-from iroha_server import create_users, create_domain, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password, get_account_assets
+from forms import NewAssetForm, TransferAssetForm, UserRegistrationForm, LoginForm, DomainRegistrationForm, TransferAssetForm
+from iroha_server import create_users, transfer_asset, create_domain, create_and_issue_new_asset, set_account_detail, get_user_details, get_domain_assets, get_user_password, get_account_assets
 import requests as r
 
 ###############################################################################
@@ -63,6 +63,21 @@ def new_asset():
             return redirect(url_for('dashboard'))
     return render_template('new_asset.html', form=form)
 
+@app.route('/new_asset_transfer', methods=['GET', 'POST'])
+def new_asset_transfer():
+    form = TransferAssetForm()
+
+    if form.is_submitted():
+        if session['account_id']:
+            owner = session['account_id']
+            recipient = form.recipient.data
+            asset_id = form.asset_id.data
+            description = form.description.data
+            qty = form.qty.data
+            transfer_asset(owner,recipient,asset_id,description,qty)
+            return redirect(url_for('dashboard'))
+    return render_template('new_asset_transfer.html', form=form)
+
 @app.route('/new_domain', methods=['GET', 'POST'])
 def new_domain():
     form = DomainRegistrationForm()
@@ -94,6 +109,7 @@ def dashboard():
 
 @app.route('/logout')
 def logout():
+    session['account_id'].pop()
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
