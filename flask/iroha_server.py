@@ -1,16 +1,15 @@
 import binascii
 from iroha import IrohaCrypto as ic
 from iroha import Iroha, IrohaGrpc
-from iroha.primitive_pb2 import can_set_my_account_detail
+from iroha.primitive_pb2 import can_set_my_account_detail, can_transfer
 import sys
 import json
 import os
 import pandas as pd
 import ipfsapi
 
-ipfs_api = ipfsapi.connect('127.0.0.1', 5001)
-
 def add_to_ipfs(ipfs_file):
+    ipfs_api = ipfsapi.connect('127.0.0.1', 5001)
     res = ipfs_api.add(ipfs_file)
     return res
 
@@ -73,11 +72,11 @@ def create_users(user_name,domain,pwd_hash):
     send_transaction_and_print_status(account_details)
     user_pvt_file = './configs/' + account_id +'.priv'
     user_pub_file = './configs/' + account_id +'.pub'
-    user_private_key_file = open(user_pvt_file,'wb+').write(user_public_key)
-    user_public_key_file = open(user_pub_file,'wb+').write(user_private_key)
+    user_private_key_file = open(user_pvt_file,'wb+').write(user_private_key)
+    user_public_key_file = open(user_pub_file,'wb+').write(user_public_key)
     return user_private_key, user_public_key
     
-def create_domain_asset_manager(domain,ple_id):
+def create_domain_asset_manager(domain):
     global iroha
     """
     register new domain asset manager and set password & plenteum address
@@ -131,23 +130,21 @@ def create_and_issue_new_asset(asset,domain,precision,qty,account_id,description
     send_transaction_and_print_status(user_tx)
     asset_id = asset + '#' + domain
     add_asset_to_admin(asset_id=asset_id,qty=qty)
-    transfer_asset_from_admin('admin@test',account_id,asset_id,description,domain,qty)
+    transfer_asset_from_admin('admin@test',account_id,asset_id,description,qty)
 
-def transfer_asset(owner,recepient,asset_id,description,qty):
-    user_iroha = Iroha(owner)
-    net = IrohaGrpc()
+def transfer_asset(owner,recipient,asset_id,description,qty):
     user_pvt_file = './configs/' + owner +'.priv'
     user_private_key = open(user_pvt_file).read()
-    user_tx = user_iroha.transaction([
-        user_iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recepient,
-                      asset_id=asset_id, description=description, amount=qty)])
+    user_tx = iroha.transaction([
+        iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recipient,
+                      asset_id=asset_id, description=description, amount=qty)],creator_account=owner)
     ic.sign_transaction(user_tx, user_private_key)
     send_transaction_and_print_status(user_tx)
 
-def transfer_asset_from_admin(owner,recepient,asset_id,description,qty):
+def transfer_asset_from_admin(owner,recipient,asset_id,description,qty):
     global iroha
     user_tx = iroha.transaction([
-        iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recepient,
+        iroha.command('TransferAsset', src_account_id=owner, dest_account_id=recipient,
                       asset_id=asset_id, description=description, amount=qty)])
     ic.sign_transaction(user_tx, admin_private_key)
     send_transaction_and_print_status(user_tx)
@@ -164,7 +161,7 @@ def get_blocks():
 
 def set_account_detail(account_id,key,value):
     """
-    Set age to user@domain by admin@test
+    Set account detail key value
     """
     tx = iroha.transaction([
         iroha.command('SetAccountDetail',
@@ -328,7 +325,7 @@ def check_no_pending_txs(account_id):
     )
     print(' ~~~')
 
-def bob_declines_exchange_request():
+def user_declines_exchange_request():
     print("""
     
     IT IS EXPECTED HERE THAT THE BATCH WILL FAIL STATEFUL VALIDATION

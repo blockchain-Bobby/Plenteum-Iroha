@@ -32,6 +32,7 @@ class TransferAssetForm(FlaskForm):
     asset_id = StringField('Asset Name # Domain',validators=[DataRequired])
     description = StringField('Transaction Description',validators=[DataRequired])
     qty = StringField('Total Amount')
+    private_key = StringField('Private Key To Sign Tx',validators=[DataRequired])
  
 class SellAssetMarketplaceForm(FlaskForm):
     account_id = 'asset_marketplace@test'
