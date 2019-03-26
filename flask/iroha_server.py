@@ -17,6 +17,11 @@ iroha = Iroha('admin@test')
 net = IrohaGrpc()
 admin_private_key = open('./configs/admin@test.priv').read()
 
+def open_private_key(account_id):
+    user_pvt_file = './configs/' + account_id +'.priv'
+    user_private_key = open(user_pvt_file).read()
+    return user_private_key
+
 def send_transaction_and_print_status(transaction):
     global net
     hex_hash = binascii.hexlify(ic.hash(transaction))
@@ -75,6 +80,22 @@ def create_users(user_name,domain,pwd_hash):
     user_private_key_file = open(user_pvt_file,'wb+').write(user_private_key)
     user_public_key_file = open(user_pub_file,'wb+').write(user_public_key)
     return user_private_key, user_public_key
+
+def add_contact(account_id,contact):
+    user_private_key = open_private_key(account_id)
+    add_contact = iroha.transaction([
+            iroha.command('GrantPermission', account_id=contact, permission=can_set_my_account_detail)
+        ], creator_account=account_id)
+    ic.sign_transaction(add_contact, user_private_key)
+    send_transaction_and_print_status(add_contact)
+        
+def send_msg(sender,recipient,subject,msg):
+
+    account_details = iroha.transaction([
+            iroha.command('SetAccountDetail',
+                        account_id=account_id, key=subject, value=msg),])
+    ic.sign_transaction(account_details, admin_private_key)
+    send_transaction_and_print_status(account_details)
     
 def create_domain_asset_manager(domain):
     global iroha
@@ -100,7 +121,7 @@ def create_domain_asset_manager(domain):
 def add_asset_to_admin(asset_id, qty):
     global iroha
     """
-    Add asset supply and assign to 'admin@test'
+    Add asset supply and assign to 'admin'
     """
     tx = iroha.transaction([
         iroha.command('AddAssetQuantity',
@@ -200,7 +221,17 @@ def get_account_assets(account_id):
         all_assets.append(assets)
     df = pd.DataFrame.from_dict(all_assets)  
     return df
-    
+
+def get_tx_history(account_id,total):
+    """
+    List total number of tx details of user@domain
+    """
+    query = iroha.query('GetAccountTransactions', account_id=account_id, page_size=total)
+    ic.sign_query(query, admin_private_key)
+
+    response = net.send_query(query)
+    return response
+
 def get_domain_assets():
     """
     List all the assets of user@domain
@@ -244,31 +275,6 @@ def get_user_password(account_id):
     user = json.loads(str(data.detail))
     pwd_hash = user['admin@test']['password']
     return pwd_hash
-
-def create_dummy_users(total):
-    global iroha
-    """
-    test to create 100 dummy user accounts
-    """
-    i = 0
-    while i < total:
-        i += 1
-        user_name = 'user' + str(i)
-        domain = 'test'
-        user_private_key, user_public_key = generate_kp()
-        init_cmds = [
-            iroha.command('CreateAccount', account_name=user_name, domain_id=domain,
-                        public_key=user_public_key)
-        ]
-        init_tx = iroha.transaction(init_cmds)
-        ic.sign_transaction(init_tx, admin_private_key)
-        send_transaction_and_print_status(init_tx)
-        account_id = user_name + '@' + domain
-        user_pvt_file = './configs/' + account_id +'.priv'
-        user_pub_file = './configs/' + account_id +'.pub'
-        user_private_key_file = open(user_pvt_file,'wb+').write(user_public_key)    
-        user_public_key_file = open(user_pub_file,'wb+').write(user_private_key)
-    print("All users have been created")
 
 def alice_creates_exchange_batch():
     alice_tx = iroha.transaction(
