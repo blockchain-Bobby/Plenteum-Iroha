@@ -89,14 +89,26 @@ def add_contact(account_id,contact):
     ic.sign_transaction(add_contact, user_private_key)
     send_transaction_and_print_status(add_contact)
         
-def send_msg(sender,recipient,subject,msg):
-
+def send_msg(account_id,recipient,subject,msg):
+    user_private_key = open_private_key(account_id)
     account_details = iroha.transaction([
             iroha.command('SetAccountDetail',
-                        account_id=account_id, key=subject, value=msg),])
-    ic.sign_transaction(account_details, admin_private_key)
+                        account_id=account_id, key=subject, value=msg),],creator_account=account_id)
+    ic.sign_transaction(account_details, user_private_key)
     send_transaction_and_print_status(account_details)
-    
+
+def load_msgs(account_id):
+    user_private_key = open_private_key(account_id)
+    sender = None
+    query = iroha.query('GetAccountDetail', creator_account=account_id)
+    ic.sign_query(query, user_private_key)
+
+    response = net.send_query(query)
+    data = response.account_detail_response
+    msgs = json.loads(str(data.detail))
+    print('Account id = {}, details = {}'.format(account_id, data.detail))
+    return msgs
+
 def create_domain_asset_manager(domain):
     global iroha
     """

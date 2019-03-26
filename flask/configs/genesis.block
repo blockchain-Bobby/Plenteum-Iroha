@@ -10,7 +10,7 @@
                           "addPeer":{
                              "peer":{
                                 "address":"127.0.0.1:10001",
-                                "peerKey":"bddd58404d1315e0eb27902c5d7c8eb0602c16238f005773df406bc191308929"
+                                "peerKey":"9f00480106012ae4584ff776ba39073fa6001dc8d3580ba39b920da6f06c3d85"
                              }
                           }
                        },
@@ -63,8 +63,34 @@
                        },
                        {
                           "createRole":{
-                             "roleName":"money_creator",
+                             "roleName":"asset_manager",
                              "permissions":[
+                                "can_add_asset_qty",
+                                "can_receive",
+                                "can_transfer"
+                             ]
+                          }
+                       },
+                       {
+                          "createRole":{
+                             "roleName":"oracle",
+                             "permissions":[
+                                "can_add_peer",
+                                "can_add_signatory",
+                                "can_create_account",
+                                "can_create_domain",
+                                "can_get_all_acc_ast",
+                                "can_get_all_acc_ast_txs",
+                                "can_get_all_acc_detail",
+                                "can_get_all_acc_txs",
+                                "can_get_all_accounts",
+                                "can_get_all_signatories",
+                                "can_get_all_txs",
+                                "can_get_blocks",
+                                "can_get_roles",
+                                "can_read_assets",
+                                "can_remove_signatory",
+                                "can_set_quorum",
                                 "can_add_asset_qty",
                                 "can_create_asset",
                                 "can_receive",
@@ -74,41 +100,41 @@
                        },
                        {
                           "createDomain":{
-                             "domainId":"test",
+                             "domainId":"plenteum",
                              "defaultRole":"user"
                           }
                        },
                        {
                           "createAsset":{
-                             "assetName":"coin",
-                             "domainId":"test",
+                             "assetName":"ple",
+                             "domainId":"plenteum",
                              "precision":2
                           }
                        },
                        {
                           "createAccount":{
                              "accountName":"admin",
-                             "domainId":"test",
+                             "domainId":"plenteum",
                              "publicKey":"313a07e6384776ed95447710d15e59148473ccfc052a681317a72a69f2a49910"
                           }
                        },
                        {
                           "createAccount":{
-                             "accountName":"test",
-                             "domainId":"test",
+                             "accountName":"genesis_bot",
+                             "domainId":"plenteum",
                              "publicKey":"716fe505f69f18511a1b083915aa9ff73ef36e6688199f3959750db38b8f4bfc"
                           }
                        },
                        {
                           "appendRole":{
-                             "accountId":"admin@test",
+                             "accountId":"admin@plenteum",
                              "roleName":"admin"
                           }
                        },
                        {
                           "appendRole":{
-                             "accountId":"admin@test",
-                             "roleName":"money_creator"
+                             "accountId":"admin@plenteum",
+                             "roleName":"oracle"
                           }
                        }
                     ],

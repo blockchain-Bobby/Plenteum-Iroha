@@ -23,7 +23,7 @@ class NewAssetForm(FlaskForm):
     domain = StringField('Domain',validators=[DataRequired])
     description = StringField('Asset Description',validators=[DataRequired])
     precision = IntegerField('Decimal Points')
-    qty = StringField('Total Supply')
+    qty = StringField('Initial Qty')
     file_upload = FileField('File')
     ipfs_hash = StringField('IPFS Location')
     
@@ -33,15 +33,16 @@ class TransferAssetForm(FlaskForm):
     description = StringField('Transaction Description',validators=[DataRequired])
     qty = StringField('Total Amount')
     private_key = StringField('Private Key To Sign Tx',validators=[DataRequired])
- 
-class SellAssetMarketplaceForm(FlaskForm):
-    account_id = 'asset_marketplace@test'
-    asset_id = StringField('Asset ID',validators=[DataRequired])
-    description = StringField('Asset Description',validators=[DataRequired])
-    private_key = StringField('Private Key',validators=[DataRequired])
-    qty = StringField('Total Supply')
-    ple_cost = StringField('Price in PLE')
- 
+  
 class AssetDetailsForm(FlaskForm):
      key = StringField('Key')
      value = StringField('Value')
+
+class AddContactForm(FlaskForm):
+    contact = StringField('Key')
+
+class NewMessageForm(FlaskForm):
+    account_id = StringField('Key')
+    recipient = StringField('Key')
+    subject = StringField('Key')
+    msg = StringField('Key')
